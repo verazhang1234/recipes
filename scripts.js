@@ -349,7 +349,9 @@ function toggleUnits(index) {
   displayRecipe(index);
 }
 
-// Load recipes on page load
-window.onload = loadRecipes;
+window.onload = () => {
+  loadRecipes();
+  displayRecipe(0);  // Display the first recipe by default
+};
 
   
