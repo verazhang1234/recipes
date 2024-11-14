@@ -266,97 +266,90 @@ const recipes = [{
     }
   ];
   
-  // Function to load recipes into the page
-  function loadRecipes() {
-    const recipeList = document.getElementById("recipe-list");
-    recipes.forEach((recipe, index) => {
-      const recipeLink = document.createElement("a");
-      recipeLink.textContent = recipe.name;
-      recipeLink.href = "#";
-      recipeLink.onclick = () => displayRecipe(index);
-      recipeList.appendChild(recipeLink);
-      recipeList.appendChild(document.createElement("br"));
-    });
-  }
-  
-  // Function to display a specific recipe
-  function displayRecipe(index) {
-    const recipe = recipes[index];
-    const recipeDisplay = document.getElementById("recipe-display");
-    recipeDisplay.innerHTML = `
-      <h2>${recipe.name}</h2>
-      <p><strong>Description:</strong> ${recipe.description}</p>
-      <p><strong>Cuisine:</strong> ${recipe.cuisine}</p>
-      <img src="${recipe.image}" alt="${recipe.name}">
-      <p><strong>Preparation Time:</strong> ${formatTime(recipe.prepTime)}</p>
-      <p><strong>Cooking Time:</strong> ${formatTime(recipe.cookTime)}</p>
-      <p><strong>Servings:</strong> ${recipe.servings}</p>
-      <button onclick="doubleServings(${index})">Double the Servings</button>
-      <button onclick="convertToImperial(${index})">Convert to Imperial</button>
-      <h3>Ingredients</h3>
-      <ul>${recipe.ingredients.map(ingredient => `<li>${ingredient.amount} ${ingredient.unit} ${ingredient.item}</li>`).join('')}</ul>
-      <h3>Instructions</h3>
-      <ol>${recipe.instructions.map(step => `<li>${step.text}</li>`).join('')}</ol>
-    `;
-  }
-  
-  // Helper function to format time
-  function formatTime(minutes) {
-    return minutes >= 60 ? `${Math.floor(minutes / 60)} hours ${minutes % 60} minutes` : `${minutes} minutes`;
-  }
-  
-  // Function to double the servings and ingredients
-  function doubleServings(index) {
-    const recipe = recipes[index];
+
+// Store the original recipe data to reset as needed
+const originalRecipes = JSON.parse(JSON.stringify(recipes));
+
+// Function to load recipes into the page
+function loadRecipes() {
+  const recipeList = document.getElementById("recipe-list");
+  recipes.forEach((recipe, index) => {
+    const recipeLink = document.createElement("a");
+    recipeLink.textContent = recipe.name;
+    recipeLink.href = "#";
+    recipeLink.onclick = () => displayRecipe(index);
+    recipeList.appendChild(recipeLink);
+    recipeList.appendChild(document.createElement("br"));
+  });
+}
+
+// Function to display a specific recipe
+function displayRecipe(index) {
+  const recipe = recipes[index];
+  const recipeDisplay = document.getElementById("recipe-display");
+  recipeDisplay.innerHTML = `
+    <h2>${recipe.name}</h2>
+    <p><strong>Description:</strong> ${recipe.description}</p>
+    <p><strong>Cuisine:</strong> ${recipe.cuisine}</p>
+    <img src="${recipe.image}" alt="${recipe.name}">
+    <p><strong>Preparation Time:</strong> ${formatTime(recipe.prepTime)}</p>
+    <p><strong>Cooking Time:</strong> ${formatTime(recipe.cookTime)}</p>
+    <p><strong>Servings:</strong> ${recipe.servings}</p>
+    <button id="servings-btn" onclick="toggleServings(${index})">Double the Servings</button>
+    <button id="unit-btn" onclick="toggleUnits(${index})">Convert to Imperial</button>
+    <h3>Ingredients</h3>
+    <ul>${recipe.ingredients.map(ingredient => `<li>${ingredient.amount} ${ingredient.unit} ${ingredient.item}</li>`).join('')}</ul>
+  `;
+}
+
+// Helper function to format time
+function formatTime(minutes) {
+  return minutes >= 60 ? `${Math.floor(minutes / 60)} hours ${minutes % 60} minutes` : `${minutes} minutes`;
+}
+
+// Toggle servings between double and single
+function toggleServings(index) {
+  const recipe = recipes[index];
+  const servingsBtn = document.getElementById("servings-btn");
+
+  if (servingsBtn.textContent === "Double the Servings") {
     recipe.servings *= 2;
     recipe.ingredients.forEach(ingredient => ingredient.amount *= 2);
-    displayRecipe(index);
+    servingsBtn.textContent = "Single Servings";
+  } else {
+    recipe.servings = originalRecipes[index].servings;
+    recipe.ingredients = JSON.parse(JSON.stringify(originalRecipes[index].ingredients));
+    servingsBtn.textContent = "Double the Servings";
   }
-  
-// Function to toggle servings between double and single
-function toggleServings(index) {
-    const recipe = recipes[index];
-    const servingsBtn = document.getElementById("servings-btn");
 
-    if (servingsBtn.textContent === "Double the Servings") {
-        recipe.servings *= 2;
-        recipe.ingredients.forEach(ingredient => ingredient.amount *= 2);
-        servingsBtn.textContent = "Single Servings";
-    } else {
-        // Reset servings and ingredients to original values
-        recipe.servings = originalRecipes[index].servings;
-        recipe.ingredients = JSON.parse(JSON.stringify(originalRecipes[index].ingredients));
-        servingsBtn.textContent = "Double the Servings";
-    }
-
-    displayRecipe(index);
+  displayRecipe(index);
 }
 
-// Function to toggle units between metric and imperial
+// Toggle units between metric and imperial
 function toggleUnits(index) {
-    const recipe = recipes[index];
-    const unitBtn = document.getElementById("unit-btn");
+  const recipe = recipes[index];
+  const unitBtn = document.getElementById("unit-btn");
 
-    if (unitBtn.textContent === "Convert to Imperial") {
-        recipe.ingredients.forEach(ingredient => {
-            if (ingredient.unit === "grams") {
-                ingredient.amount = (ingredient.amount / 1000 * 2.20462).toFixed(2); // Convert to pounds
-                ingredient.unit = "pounds";
-            } else if (ingredient.unit === "cups") {
-                ingredient.amount = (ingredient.amount * 8.11537).toFixed(2); // Convert cups to fluid ounces
-                ingredient.unit = "oz";
-            }
-        });
-        unitBtn.textContent = "Convert to Metric";
-    } else {
-        // Reset units and amounts to original metric values
-        recipe.ingredients = JSON.parse(JSON.stringify(originalRecipes[index].ingredients));
-        unitBtn.textContent = "Convert to Imperial";
-    }
+  if (unitBtn.textContent === "Convert to Imperial") {
+    recipe.ingredients.forEach(ingredient => {
+      if (ingredient.unit === "grams") {
+        ingredient.amount = (ingredient.amount / 1000 * 2.20462).toFixed(2); // Convert grams to pounds
+        ingredient.unit = "pounds";
+      } else if (ingredient.unit === "cups") {
+        ingredient.amount = (ingredient.amount * 8.11537).toFixed(2); // Convert cups to fluid ounces
+        ingredient.unit = "oz";
+      }
+    });
+    unitBtn.textContent = "Convert to Metric";
+  } else {
+    recipe.ingredients = JSON.parse(JSON.stringify(originalRecipes[index].ingredients));
+    unitBtn.textContent = "Convert to Imperial";
+  }
 
-    displayRecipe(index);
+  displayRecipe(index);
 }
-  
-  // Load recipes on page load
-  window.onload = loadRecipes;
+
+// Load recipes on page load
+window.onload = loadRecipes;
+
   
