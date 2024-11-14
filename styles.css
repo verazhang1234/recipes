@@ -71,3 +71,37 @@ img {
     max-width: 100%;
     height: auto;
 }
+
+@media (min-width: 1920px) {
+    .navbar {
+        padding: 20px 120px;
+    }
+
+    .recipe-container {
+        padding: 0 60px;
+    }
+}
+
+@media (max-width: 320px) {
+    /* If the screen is narrower than 320px, we can adjust font sizes and padding */
+    .navbar {
+        padding: 10px 20px;
+    }
+
+    .logo {
+        font-size: 18px;
+    }
+
+    .nav-links li a {
+        font-size: 14px;
+    }
+
+    main {
+        padding: 10px;
+    }
+
+    .recipe-container {
+        width: 100%;
+        padding: 10px;
+    }
+}
